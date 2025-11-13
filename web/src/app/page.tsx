@@ -15,18 +15,19 @@ export default function Home() {
 
   useEffect(() => {
     const countRenewals = async () => {
-      const { data } = await supabase
+      const { count } = await supabase
         .from('policies')
-        .select('id', { count: 'exact' })
+        .select('*', { count: 'exact', head: true })
         .eq('status', 'bound')
         .gte('end_date', new Date().toISOString().split('T')[0])
-        .lte('end_date', new Date(Date.now() + 30*24*60*60*1000).toISOString().split('T')[0]);
-      setRenewals(data?.length || 0);
+        .lte('end_date', new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]);
+      setRenewals(count || 0);
     };
     countRenewals();
   }, []);
 
   const handleSearch = async () => {
+    if (!search) return;
     const { data: clients } = await supabase
       .from('clients')
       .select('id, name, abn')
@@ -51,46 +52,55 @@ export default function Home() {
           <input
             type="text"
             placeholder="Search clients, policies, quotes..."
-            className="flex-1 px-4 py-2 border rounded-lg"
+            className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
           />
-          <button onClick={handleSearch} className="px-6 py-2 bg-blue-600 text-white rounded-lg">
+          <button 
+            onClick={handleSearch} 
+            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          >
             Search
           </button>
         </div>
 
         {results.length > 0 && (
           <div className="mb-6 bg-white p-4 rounded-lg shadow">
-            <h3 className="font-semibold mb-2">Results</h3>
+            <h3 className="font-semibold mb-2">Search Results</h3>
             {results.map((r: any) => (
-              <div key={r.id} className="py-1">
-                {r.name ? `Client: ${r.name} (ABN: ${r.abn || '—'})` : `Policy: ${r.policy_no}`}
+              <div key={r.id} className="py-1 border-b last:border-b-0">
+                {r.name ? `Client: ${r.name} (ABN: ${r.abn || '—'})` : `Policy: ${r.policy_no} (${r.status})`}
               </div>
             ))}
           </div>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <div className="bg-white p-6 rounded-lg shadow">
-            <h3 className="text-lg font-semibold">Upcoming Renewals (30d)</h3>
-            <p className="text-3xl font-bold text-blue-600">{renewals}</p>
+            <h3 className="text-lg font-semibold text-gray-900">Upcoming Renewals (30d)</h3>
+            <p className="text-3xl font-bold text-blue-600 mt-2">{renewals}</p>
           </div>
           <div className="bg-white p-6 rounded-lg shadow">
-            <h3 className="text-lg font-semibold">Bound Today</h3>
-            <p className="text-3xl font-bold text-green-600">0</p>
+            <h3 className="text-lg font-semibold text-gray-900">Policies Bound Today</h3>
+            <p className="text-3xl font-bold text-green-600 mt-2">0</p>
           </div>
           <div className="bg-white p-6 rounded-lg shadow">
-            <h3 className="text-lg font-semibold">Total Premium (MTD)</h3>
-            <p className="text-3xl font-bold text-purple-600">$0</p>
+            <h3 className="text-lg font-semibold text-gray-900">Total Premium (MTD)</h3>
+            <p className="text-3xl font-bold text-purple-600 mt-2">$0</p>
           </div>
         </div>
 
-        <div className="mt-8 flex gap-3">
-          <a href="/clients/new" className="px-4 py-2 bg-indigo-600 text-white rounded">+ New Client</a>
-          <a href="/policies/new" className="px-4 py-2 bg-teal-600 text-white rounded">+ New Policy</a>
-          <a href="/admin/policy-types" className="px-4 py-2 bg-gray-700 text-white rounded">Admin</a>
+        <div className="flex gap-3">
+          <button className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">
+            + New Client
+          </button>
+          <button className="px-4 py-2 bg-teal-600 text-white rounded hover:bg-teal-700">
+            + New Policy
+          </button>
+          <button className="px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-800">
+            Admin: Policy Types
+          </button>
         </div>
       </div>
     </div>
