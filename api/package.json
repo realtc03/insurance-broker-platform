@@ -1,0 +1,16 @@
+{
+  "name": "api",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "nest start",
+    "build": "nest build"
+  },
+  "dependencies": {
+    "@nestjs/core": "^10.0.0",
+    "@nestjs/common": "^10.0.0",
+    "@nestjs/platform-express": "^10.0.0",
+    "@supabase/supabase-js": "^2.39.7",
+    "reflect-metadata": "^0.1.13",
+    "rxjs": "^7.8.0"
+  }
+}
